@@ -1,5 +1,6 @@
 package de.marvin.merkletree;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -17,6 +18,19 @@ public class Proof {
         this.leafIndex = leafIndex;
         this.leafSize = leafSize;
         this.hashAlg = hashAlg;
+    }
+
+    public byte[] asBytes(){
+        ByteBuffer bb = ByteBuffer.allocate((proofSet.size() + 1) * rootHash.length + 3 * Integer.BYTES + hashAlg.length());
+        bb.putInt(proofSet.size());
+        bb.put(rootHash);
+        for(byte[] hash: proofSet){
+            bb.put(hash);
+        }
+        bb.putInt(leafIndex);
+        bb.putInt(leafSize);
+        bb.put(hashAlg.getBytes());
+        return bb.array();
     }
 
     public static boolean verify(byte[] data, Proof proof) throws NoSuchAlgorithmException {

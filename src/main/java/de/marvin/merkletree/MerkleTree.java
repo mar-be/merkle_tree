@@ -95,5 +95,6 @@ public class MerkleTree {
         Proof proof_2 = merkleTree.getProof(4);
         System.out.println(Proof.verify("0".getBytes(), proof_2));
         System.out.println(Proof.verify("4".getBytes(), proof_2));
+        System.out.println(proof_2.asBytes().toString());
     }
 }
