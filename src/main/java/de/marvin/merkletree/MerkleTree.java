@@ -3,15 +3,16 @@ package de.marvin.merkletree;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class MerkleTree {
     private ArrayList<LeafNode> leafs =  new ArrayList<>();
+    private String hashAlg;
     private MessageDigest md;
     private MerkleNode root;
 
 
     public MerkleTree(String hashAlg) throws NoSuchAlgorithmException {
+        this.hashAlg = hashAlg;
         this.md = md.getInstance(hashAlg);
         this.root = null;
     }
@@ -53,19 +54,21 @@ public class MerkleTree {
         return root;
     }
 
-    public ArrayList<byte[]> getProof(int leafIndex){
+
+    public Proof getProof(int leafIndex) throws NoSuchAlgorithmException {
         ArrayList<byte[]> proof = new ArrayList<>();
 
-        MerkleNode node = leafs.get(leafIndex);
-        if(node.getParent() == null){
-            proof.add(node.getHash());
-        }
+        MerkleNode node = this.leafs.get(leafIndex);
         while(node.getParent() != null){
-            node = node.getParent();
-            proof.add(node.getLeftChild().getHash());
-            proof.add(node.getRightChild().getHash());
+            MerkleNode parent = node.getParent();
+            if(parent.getLeftChild() != node){
+                proof.add(parent.getLeftChild().getHash());
+            } else {
+                proof.add(parent.getRightChild().getHash());
+            }
+            node = parent;
         }
-        return proof;
+        return new Proof(root.getHash(), proof, leafIndex, this.leafs.size(), this.hashAlg);
 
     }
 
@@ -77,7 +80,14 @@ public class MerkleTree {
         merkleTree.append("3".getBytes());
         merkleTree.append("4".getBytes());
         merkleTree.buildTree();
-        System.out.println(merkleTree.getProof(0));
-        System.out.println(merkleTree.getProof(2));
+        Proof proof = merkleTree.getProof(0);
+        System.out.println(Proof.verify("0".getBytes(), proof));
+        System.out.println(Proof.verify("1".getBytes(), proof));
+        Proof proof_1 = merkleTree.getProof(1);
+        System.out.println(Proof.verify("0".getBytes(), proof_1));
+        System.out.println(Proof.verify("1".getBytes(), proof_1));
+        Proof proof_2 = merkleTree.getProof(4);
+        System.out.println(Proof.verify("0".getBytes(), proof_2));
+        System.out.println(Proof.verify("4".getBytes(), proof_2));
     }
 }

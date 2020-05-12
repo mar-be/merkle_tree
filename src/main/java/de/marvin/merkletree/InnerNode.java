@@ -1,7 +1,6 @@
 package de.marvin.merkletree;
 
 import java.security.MessageDigest;
-import java.util.Arrays;
 
 public class InnerNode implements MerkleNode {
 
