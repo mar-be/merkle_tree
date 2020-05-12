@@ -10,6 +10,12 @@ public class MerkleTree {
     private MessageDigest md;
     private MerkleNode root;
 
+    public MerkleTree() throws NoSuchAlgorithmException {
+        this.hashAlg = "SHA-256";
+        this.md = md.getInstance(hashAlg);
+        this.root = null;
+    }
+
 
     public MerkleTree(String hashAlg) throws NoSuchAlgorithmException {
         this.hashAlg = hashAlg;
@@ -73,7 +79,7 @@ public class MerkleTree {
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        MerkleTree merkleTree = new MerkleTree("SHA-256");
+        MerkleTree merkleTree = new MerkleTree();
         merkleTree.append("0".getBytes());
         merkleTree.append("1".getBytes());
         merkleTree.append("2".getBytes());
