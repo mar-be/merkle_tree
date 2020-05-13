@@ -112,12 +112,18 @@ public class MerkleTree {
             throw new IndexOutOfBoundsException();
         }
 
-        ArrayList<byte[]> proof = new ArrayList<>();
-
         IMerkleNode node = this.leafs.get(leafIndex);
+
+        if(node.getProof() != null){
+            return new Proof(root.getHash(), node.getProof(), leafIndex, this.leafs.size(), this.hashAlg);
+        }
+
+        ArrayList<byte[]> proof = new ArrayList<>();
+        ArrayList<IMerkleNode> visitedNodes = new ArrayList<>();
 
         // go up the path from the leaf to the root
         while(node.getParent() != null){
+            visitedNodes.add(node);
             IMerkleNode parent = node.getParent();
             // check if the node is the right or left child of the parent and add the missing hash value to the proof set
             if(parent.getLeftChild() != node){
@@ -125,7 +131,16 @@ public class MerkleTree {
             } else {
                 proof.add(parent.getRightChild().getHash());
             }
+            if(parent.getProof() != null){
+                proof.addAll(parent.getProof());
+                break;
+            }
             node = parent;
+        }
+
+        for(int i = 0; i < visitedNodes.size(); i++){
+            IMerkleNode visitedNode = visitedNodes.get(i);
+            visitedNode.setProof(new ArrayList<byte[]>(proof.subList(i, proof.size())));
         }
         return new Proof(root.getHash(), proof, leafIndex, this.leafs.size(), this.hashAlg);
 
