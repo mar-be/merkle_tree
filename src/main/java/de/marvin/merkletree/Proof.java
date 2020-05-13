@@ -117,14 +117,16 @@ public class Proof {
         int leafSize = proof.leafSize;
         for(byte[] hash: proof.proofSet){
             if(index == leafSize - 1 || index % 2 == 1){
+                // currentHash is the right child and the hash from the proofSet is the left child
                 System.arraycopy(hash, 0, combinedChildHashes, 0, hash.length);
                 System.arraycopy(currentHash, 0, combinedChildHashes, md.getDigestLength(), currentHash.length);
             } else {
+                // currentHash is the left child and the hash from the proofSet is the right child
                 System.arraycopy(currentHash, 0, combinedChildHashes, 0, currentHash.length);
                 System.arraycopy(hash, 0, combinedChildHashes, md.getDigestLength(), hash.length);
             }
             currentHash = md.digest(combinedChildHashes);
-            leafSize = leafSize/2 + leafSize % 2;
+            leafSize = leafSize / 2 + leafSize % 2;
             index = index / 2;
         }
         return MessageDigest.isEqual(proof.rootHash, currentHash);
