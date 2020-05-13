@@ -23,8 +23,7 @@ public class Proof {
     }
 
     /**
-     * hash length | proofSet Size | leafIndex | leafSize | rootHash | proofSet | hashAlgorithm
-     * @return
+     * @return byte array: hash length | proofSet Size | leafIndex | leafSize | rootHash | proofSet | hashAlgorithm
      */
     public byte[] asBytes(){
         ByteBuffer bb = ByteBuffer.allocate((proofSet.size() + 1) * rootHash.length + 4 * Integer.BYTES + hashAlg.length());
@@ -50,6 +49,28 @@ public class Proof {
                 ", hashAlg='" + hashAlg + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()){
+            return false;
+        }
+        Proof proof = (Proof) o;
+        if(this.proofSet.size() != proof.proofSet.size()){
+            return false;
+        }
+        for(int i = 0; i<this.proofSet.size(); i++){
+            if(!Arrays.equals(this.proofSet.get(i), proof.proofSet.get(i))){
+                return false;
+            }
+        }
+        return leafIndex == proof.leafIndex &&
+                leafSize == proof.leafSize &&
+                Arrays.equals(rootHash, proof.rootHash) &&
+                hashAlg.equals(proof.hashAlg);
+    }
+
 
     public static Proof getFromBytes(byte[] proof){
         ByteBuffer bb = ByteBuffer.wrap(proof);

@@ -14,32 +14,52 @@ public class MerkleTreeTest {
     @Test
     public void randomTreeDataSize1() throws NoSuchAlgorithmException {
         for(int numOfLeafs = 1; numOfLeafs <= 1024; numOfLeafs++){
-            randomTree(numOfLeafs, 1);
+            randomTreeProofs(numOfLeafs, 1);
         }
     }
 
     @Test
     public void randomTreeDataSize8() throws NoSuchAlgorithmException {
         for(int numOfLeafs = 1; numOfLeafs <= 1024; numOfLeafs++){
-            randomTree(numOfLeafs, 8);
+            randomTreeProofs(numOfLeafs, 8);
         }
     }
 
     @Test
     public void randomTreeDataSize64() throws NoSuchAlgorithmException {
         for(int numOfLeafs = 1; numOfLeafs <= 1024; numOfLeafs++){
-            randomTree(numOfLeafs, 64);
+            randomTreeProofs(numOfLeafs, 64);
         }
     }
 
     @Test
     public void randomTreeDataSize512() throws NoSuchAlgorithmException {
         for(int numOfLeafs = 1; numOfLeafs <= 1024; numOfLeafs++){
-            randomTree(numOfLeafs, 512);
+            randomTreeProofs(numOfLeafs, 512);
         }
     }
 
-    private void randomTree(int leafs, int dataSize) throws NoSuchAlgorithmException{
+    @Test
+    public void byteSerializationTest() throws NoSuchAlgorithmException {
+        MerkleTree merkleTree = new MerkleTree();
+        Random random = new Random();
+        int leafs = 64;
+        for(int i = 0; i < leafs; i++){
+            byte[] randomBytes = new byte[64];
+            random.nextBytes(randomBytes);
+            merkleTree.append(randomBytes);
+        }
+        merkleTree.buildTree();
+        for(int i = 0; i < leafs; i++){
+            Proof proof = merkleTree.getProof(i);
+            Proof proofFromBytes = Proof.getFromBytes(proof.asBytes());
+            assertEquals(proof, proofFromBytes);
+        }
+
+    }
+
+
+    private void randomTreeProofs(int leafs, int dataSize) throws NoSuchAlgorithmException{
         MerkleTree merkleTree = new MerkleTree();
         ArrayList<byte[]> data = new ArrayList<>();
         Random random = new Random();
