@@ -16,14 +16,14 @@ public class MerkleTree {
 
     public MerkleTree() throws NoSuchAlgorithmException {
         this.hashAlg = "SHA-256";
-        this.md = md.getInstance(hashAlg);
+        this.md = MessageDigest.getInstance(hashAlg);
         this.root = null;
     }
 
 
     public MerkleTree(String hashAlg) throws NoSuchAlgorithmException {
         this.hashAlg = hashAlg;
-        this.md = md.getInstance(hashAlg);
+        this.md = MessageDigest.getInstance(hashAlg);
         this.root = null;
     }
 
