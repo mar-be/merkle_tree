@@ -4,11 +4,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
+/**
+ * A MerkleTree stroes data in the LeafNodes and the hash value of the child nodes in the InnerNodes.
+ * The Merkle tree also constructs proof that a single leaf is a part of the tree.
+ */
 public class MerkleTree {
     private ArrayList<LeafNode> leafs =  new ArrayList<>();
     private String hashAlg;
     private MessageDigest md;
-    private MerkleNode root;
+    private IMerkleNode root;
 
     public MerkleTree() throws NoSuchAlgorithmException {
         this.hashAlg = "SHA-256";
@@ -24,7 +28,10 @@ public class MerkleTree {
     }
 
 
-
+    /**
+     * Appends a value to the merkle tree. This is only possible if the tree has not been build before.
+     * @param value bytes to append
+     */
     public void append(byte[] value){
         if(root != null){
             throw new IllegalStateException();
@@ -32,22 +39,29 @@ public class MerkleTree {
         leafs.add(new LeafNode(value, md));
     }
 
+    /**
+     * Builds up the merkle tree from the appended data. This is only possible if the tree has not been build before.
+     */
     public void buildTree(){
         if(root != null){
             throw new IllegalStateException();
         }
-        ArrayList<MerkleNode> roots = new ArrayList<>();
-        roots.addAll(leafs);
+        // at the beginning all leafs are roots
+        ArrayList<IMerkleNode> roots = new ArrayList<>(leafs);
+
+        // combine roots iteratively until there is only one root left
         while(roots.size() > 1){
-            ArrayList<MerkleNode> newRoots = new ArrayList<>();
+            ArrayList<IMerkleNode> newRoots = new ArrayList<>();
             for(int i = 0; i < roots.size()/2; i++){
-                final MerkleNode left = roots.get(2 * i);
-                final MerkleNode right = roots.get(2 * i + 1);
+                final IMerkleNode left = roots.get(2 * i);
+                final IMerkleNode right = roots.get(2 * i + 1);
                 final InnerNode parent = new InnerNode(this.md, left, right);
                 newRoots.add(parent);
                 left.setParent(parent);
                 right.setParent(parent);
             }
+
+            // if the last element remains because it could not be combined with another node, take it also as a new root
             if(roots.size() % 2 == 1){
                 newRoots.add(roots.get(roots.size() - 1));
             }
@@ -56,17 +70,56 @@ public class MerkleTree {
         this.root = roots.get(0);
     }
 
-    public MerkleNode getRoot() {
+    /**
+     * This is only possible if the tree has been build before.
+     * @return root node of the merkle tree
+     */
+    public IMerkleNode getRoot() {
+        if(root == null){
+            throw new IllegalStateException();
+        }
         return root;
     }
 
+    /**
+     * @param leafIndex
+     * @return leaf node at the given index
+     */
+    public LeafNode getLeaf(int leafIndex){
+        if(leafIndex < 0 || leafIndex>=leafs.size()){
+            throw new IndexOutOfBoundsException();
+        }
+        return leafs.get(leafIndex);
+    }
 
-    public Proof getProof(int leafIndex) throws NoSuchAlgorithmException {
+    /**
+     * @return the number of data elements which got appended to the merkle tree
+     */
+    public int getSize(){
+        return leafs.size();
+    }
+
+    /**
+     * @param leafIndex
+     * @return merkle proof for the data element which is stored in the given leaf
+     */
+    public Proof getProof(int leafIndex) {
+        if(root == null){
+            throw new IllegalStateException();
+        }
+
+        if(leafIndex < 0 || leafIndex>=leafs.size()){
+            throw new IndexOutOfBoundsException();
+        }
+
         ArrayList<byte[]> proof = new ArrayList<>();
 
-        MerkleNode node = this.leafs.get(leafIndex);
+        IMerkleNode node = this.leafs.get(leafIndex);
+
+        // go up the path from the leaf to the root
         while(node.getParent() != null){
-            MerkleNode parent = node.getParent();
+            IMerkleNode parent = node.getParent();
+            // check if the node is the right or left child of the parent and add the missing hash value to the proof set
             if(parent.getLeftChild() != node){
                 proof.add(parent.getLeftChild().getHash());
             } else {

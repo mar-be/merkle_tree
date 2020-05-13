@@ -2,16 +2,14 @@ package de.marvin.merkletree;
 
 import java.security.MessageDigest;
 
-public class LeafNode implements MerkleNode {
+public class LeafNode implements IMerkleNode {
 
     private byte[] value;
     private byte[] hash;
-    private MessageDigest md;
-    private MerkleNode parent;
+    private IMerkleNode parent;
 
     public LeafNode(byte[] value, MessageDigest md){
         this.value = value;
-        this.md = md;
         this.hash = md.digest(value);
     }
 
@@ -25,23 +23,27 @@ public class LeafNode implements MerkleNode {
     }
 
     @Override
-    public MerkleNode getLeftChild() {
+    public IMerkleNode getLeftChild() {
         return null;
     }
 
     @Override
-    public MerkleNode getRightChild() {
+    public IMerkleNode getRightChild() {
         return null;
     }
 
     @Override
-    public MerkleNode getParent() {
+    public IMerkleNode getParent() {
         return this.parent;
     }
 
     @Override
-    public void setParent(MerkleNode parent) {
-        this.parent = parent;
+    public boolean setParent(IMerkleNode parent) {
+        if(this.parent == null) {
+            this.parent = parent;
+            return true;
+        }
+        return false;
     }
 
 

@@ -2,16 +2,14 @@ package de.marvin.merkletree;
 
 import java.security.MessageDigest;
 
-public class InnerNode implements MerkleNode {
+public class InnerNode implements IMerkleNode {
 
-    private MessageDigest md;
     private byte[] hash;
-    private MerkleNode leftChild;
-    private MerkleNode rightChild;
-    private MerkleNode parent;
+    private IMerkleNode leftChild;
+    private IMerkleNode rightChild;
+    private IMerkleNode parent;
 
-    public InnerNode(MessageDigest md, MerkleNode leftChild, MerkleNode rightChild) {
-        this.md =  md;
+    public InnerNode(MessageDigest md, IMerkleNode leftChild, IMerkleNode rightChild) {
         byte[] combinedChildHashes = new byte[2*md.getDigestLength()];
         this.leftChild = leftChild;
         this.rightChild = rightChild;
@@ -30,22 +28,26 @@ public class InnerNode implements MerkleNode {
     }
 
     @Override
-    public MerkleNode getLeftChild() {
+    public IMerkleNode getLeftChild() {
         return this.leftChild;
     }
 
     @Override
-    public MerkleNode getRightChild() {
+    public IMerkleNode getRightChild() {
         return this.rightChild;
     }
 
     @Override
-    public MerkleNode getParent() {
+    public IMerkleNode getParent() {
         return this.parent;
     }
 
     @Override
-    public void setParent(MerkleNode parent) {
-        this.parent = parent;
+    public boolean setParent(IMerkleNode parent) {
+        if(this.parent == null) {
+            this.parent = parent;
+            return true;
+        }
+        return false;
     }
 }

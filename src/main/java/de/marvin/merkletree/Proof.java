@@ -7,6 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Stores all relevant information for a merkle proof and provides the functionality to verify a proof and to convert it to a byte array.
+ */
 public class Proof {
     private byte[] rootHash;
     private ArrayList<byte[]> proofSet;
@@ -23,7 +26,10 @@ public class Proof {
     }
 
     /**
-     * @return byte array: hash length | proofSet Size | leafIndex | leafSize | rootHash | proofSet | hashAlgorithm
+     * Creates a byte array which contains all information of the proof.
+     * The byte array is constructed in the following way:
+     * hash length (int) | proofSet Size (int) | leafIndex (int) | leafSize (int) | rootHash (byte[]) | proofSet (byte[]) | hashAlgorithm (String)
+     * @return byte array
      */
     public byte[] asBytes(){
         ByteBuffer bb = ByteBuffer.allocate((proofSet.size() + 1) * rootHash.length + 4 * Integer.BYTES + hashAlg.length());
@@ -71,7 +77,11 @@ public class Proof {
                 hashAlg.equals(proof.hashAlg);
     }
 
-
+    /**
+     * Restores a proof from a byte array which was created with {@link #asBytes()}
+     * @param proof byte array which contains the proof
+     * @return proof
+     */
     public static Proof getFromBytes(byte[] proof){
         ByteBuffer bb = ByteBuffer.wrap(proof);
         int hashLength = bb.getInt();
@@ -87,11 +97,18 @@ public class Proof {
             proofSet.add(Arrays.copyOfRange(proof, position, position+hashLength));
         }
         position += hashLength;
-        String hahsAlg = new String(Arrays.copyOfRange(proof, position, proof.length), StandardCharsets.UTF_8);
+        String hashAlg = new String(Arrays.copyOfRange(proof, position, proof.length), StandardCharsets.UTF_8);
 
-        return new Proof(rootHash, proofSet, leafIndex, leafSize, hahsAlg);
+        return new Proof(rootHash, proofSet, leafIndex, leafSize, hashAlg);
     }
 
+    /**
+     * Evaluates a merkle proof with the given data and verifies if the data belongs to the corresponding merkle tree
+     * @param data
+     * @param proof
+     * @return true iff data fulfills the merkle proof
+     * @throws NoSuchAlgorithmException
+     */
     public static boolean verify(byte[] data, Proof proof) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(proof.hashAlg);
         byte[] currentHash = md.digest(data);
