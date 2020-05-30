@@ -45,6 +45,14 @@ public class Proof {
         return bb.array();
     }
 
+    public byte[] getRootHash() {
+        return rootHash;
+    }
+
+    public String getHashAlg() {
+        return hashAlg;
+    }
+
     @Override
     public String toString() {
         return "Proof{" +
