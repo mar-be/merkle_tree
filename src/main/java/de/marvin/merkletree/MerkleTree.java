@@ -5,8 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 /**
- * A MerkleTree stroes data in the LeafNodes and the hash value of the child nodes in the InnerNodes.
- * The Merkle tree also constructs proof that a single leaf is a part of the tree.
+ * A MerkleTree stores data in the LeafNodes and the hash value of the child nodes in the InnerNodes.
+ * The Merkle tree also constructs for each leaf a merkle proof which shows that a leaf belongs to the merkle tree.
  */
 public class MerkleTree {
     private ArrayList<LeafNode> leafs =  new ArrayList<>();

@@ -12,7 +12,12 @@ import java.util.Arrays;
  */
 public class Proof {
     private byte[] rootHash;
+
+    /**
+     * The proofSet contains all relevant hash values for the proof
+     */
     private ArrayList<byte[]> proofSet;
+
     private int leafIndex;
     private int leafSize;
     private String hashAlg;
